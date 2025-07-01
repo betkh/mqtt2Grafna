@@ -8,13 +8,23 @@ This project demonstrates how to use a containerized Mosquitto MQTT broker with 
 dockerProject/
 ├── docker-compose.yml          # Docker Compose configuration
 ├── Pipfile                    # Python dependencies (pipenv)
-├── publisher.py               # MQTT publisher script
-├── subscriber_A.py            # MQTT subscriber for full data
-├── subscriber_B.py            # MQTT subscriber for temperature only
-├── data_collector.py          # MQTT to InfluxDB data collector
-├── setup_grafana.py           # Grafana setup script
+├── .gitignore                 # Git ignore rules
 ├── README.md                  # This file
-└── mosquitto/
+├── src/                       # Source code
+│   ├── scripts/               # Main application scripts
+│   │   ├── publisher.py       # MQTT publisher script
+│   │   ├── subscriber_A.py    # MQTT subscriber for full data
+│   │   ├── subscriber_B.py    # MQTT subscriber for temperature only
+│   │   ├── data_collector.py  # MQTT to InfluxDB data collector
+│   │   ├── setup_grafana.py   # Grafana setup script
+│   │   └── test_influxdb.py   # InfluxDB testing script
+│   └── utils/                 # Utility scripts
+│       └── start_visualization.sh  # Startup script
+├── config/                    # Configuration files
+│   └── env.example           # Environment variables template
+├── docs/                      # Documentation
+│   └── troubleshooting.md    # Troubleshooting guide
+└── mosquitto/                 # Mosquitto broker files
     ├── config/
     │   └── mosquitto.conf     # Mosquitto broker configuration
     ├── data/                  # Persistent data storage
@@ -37,7 +47,7 @@ git clone <repository-url>
 cd dockerProject
 
 # Create environment file
-cp env.example .env
+cp config/env.example .env
 
 # Edit .env file with your credentials (optional - defaults are provided)
 # GRAFANA_USER=admin
@@ -48,6 +58,16 @@ cp env.example .env
 ```
 
 **Note**: The `.env` file contains sensitive credentials and is automatically ignored by git. Default values are provided, but you can customize them for security.
+
+## Project Organization
+
+The project is organized into logical groups for better maintainability:
+
+- **`src/scripts/`** - Main application scripts (MQTT publishers, subscribers, data collectors)
+- **`src/utils/`** - Utility scripts and helper tools
+- **`config/`** - Configuration files and templates
+- **`docs/`** - Documentation and troubleshooting guides
+- **`mosquitto/`** - Mosquitto MQTT broker configuration and data
 
 ## Setup Instructions
 
@@ -84,7 +104,7 @@ You should see the `mqtt_broker`, `influxdb`, and `grafana` containers running.
 ### 5. Setup Grafana (One-time setup)
 
 ```bash
-pipenv run python setup_grafana.py
+pipenv run python src/scripts/setup_grafana.py
 ```
 
 This will:
@@ -101,13 +121,13 @@ This will:
 **Terminal 1 - Start Subscriber A:**
 
 ```bash
-pipenv run python subscriber_A.py
+pipenv run python src/scripts/subscriber_A.py
 ```
 
 **Terminal 2 - Start the Publisher:**
 
 ```bash
-pipenv run python publisher.py
+pipenv run python src/scripts/publisher.py
 ```
 
 ### Option 2: Run Publisher and Subscriber B (Temperature Only)
@@ -115,59 +135,89 @@ pipenv run python publisher.py
 **Terminal 1 - Start Subscriber B:**
 
 ```bash
-pipenv run python subscriber_B.py
+pipenv run python src/scripts/subscriber_B.py
 ```
 
 **Terminal 2 - Start the Publisher:**
 
 ```bash
-pipenv run python publisher.py
+pipenv run python src/scripts/publisher.py
 ```
 
-### Option 3: Run All Three Together
+### Option 3: Real-time Visualization with Grafana
 
-**Terminal 1 - Start Subscriber A:**
+**Terminal 1 - Start Data Collector:**
 
 ```bash
-pipenv run python subscriber_A.py
+pipenv run python src/scripts/data_collector.py
 ```
 
-**Terminal 2 - Start Subscriber B:**
+**Terminal 2 - Start the Publisher:**
 
 ```bash
-pipenv run python subscriber_B.py
+pipenv run python src/scripts/publisher.py
 ```
 
-**Terminal 3 - Start the Publisher:**
+**Browser - View Grafana Dashboard:**
+Open http://localhost:3000 in your browser
+
+- Username: `admin`
+- Password: `admin`
+- Navigate to the "Temperature Monitoring" dashboard
+
+### Option 4: Run All Components
+
+**Terminal 1 - Start Data Collector:**
 
 ```bash
-pipenv run python publisher.py
+pipenv run python src/scripts/data_collector.py
 ```
+
+**Terminal 2 - Start Subscriber A:**
+
+```bash
+pipenv run python src/scripts/subscriber_A.py
+```
+
+**Terminal 3 - Start Subscriber B:**
+
+```bash
+pipenv run python src/scripts/subscriber_B.py
+```
+
+**Terminal 4 - Start the Publisher:**
+
+```bash
+pipenv run python src/scripts/publisher.py
+```
+
+**Browser - View Grafana Dashboard:**
+Open http://localhost:3000
 
 ## What the Application Does
 
-### Publisher (`publisher.py`)
+### Publisher (`src/scripts/publisher.py`)
 
 - Connects to the MQTT broker
 - Publishes weather data to the "data/temperature" topic every second
 - Data includes: temperature, humidity, pressure, wind speed, location, and timestamp
 - Uses QoS level 1 for reliable message delivery
 
-### Data Collector (`data_collector.py`)
+### Data Collector (`src/scripts/data_collector.py`)
 
 - Subscribes to MQTT messages from the "data/temperature" topic
 - Extracts temperature data and stores it in InfluxDB
 - Enables real-time visualization in Grafana
 - Runs continuously to collect time-series data
 
-### Subscriber A (`subscriber_A.py`)
+### Subscriber A (`src/scripts/subscriber_A.py`)
 
 - Connects to the MQTT broker
 - Subscribes to the "data/temperature" topic
 - Receives and displays all published data (full weather information)
 - Shows temperature, humidity, pressure, wind speed, location, and timestamp
 
-### Subscriber B (`subscriber_B.py`)
+### Subscriber B (`src/scripts/subscriber_B.py`)
 
 - Connects to the MQTT broker
 - Subscribes to the "data/temperature" topic
@@ -249,7 +299,7 @@ time: 2024-01-15T10:30:45.123456Z
 To verify data is being stored in InfluxDB:
 
 ```bash
-pipenv run python test_influxdb.py
+pipenv run python src/scripts/test_influxdb.py
 ```
 
 This script will:
@@ -392,9 +442,10 @@ rm -rf /path/to/dockerProject
 
 ## Next Steps
 
-- Add authentication to the MQTT broker
+<!-- - Add authentication to the MQTT broker
 - Implement message persistence
 - Add SSL/TLS encryption
-- Create a web interface using WebSocket connections
+- Create a web interface using WebSocket connections -->
+
 - Scale to multiple publishers/subscribers
 - Add message filtering and routing
