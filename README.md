@@ -6,29 +6,29 @@ This project demonstrates how to use a containerized Mosquitto MQTT broker with 
 
 ```
 dockerProject/
-├── docker-compose.yml          # Docker Compose configuration
-├── Pipfile                    # Python dependencies (pipenv)
-├── .gitignore                 # Git ignore rules
-├── README.md                  # This file
-├── src/                       # Source code
-│   ├── scripts/               # Main application scripts
-│   │   ├── publisher.py       # MQTT publisher script
-│   │   ├── subscriber_A.py    # MQTT subscriber for full data
-│   │   ├── subscriber_B.py    # MQTT subscriber for temperature only
-│   │   ├── data_collector.py  # MQTT to InfluxDB data collector
-│   │   ├── setup_grafana.py   # Grafana setup script
-│   │   └── test_influxdb.py   # InfluxDB testing script
-│   └── utils/                 # Utility scripts
+├── docker-compose.yml              # Docker Compose configuration
+├── Pipfile                         # Python dependencies (pipenv)
+├── .gitignore                      # Git ignore rules
+├── README.md                       # This file
+├── src/                            # Source code
+│   ├── scripts/                    # Main application scripts
+│   │   ├── publisher.py            # MQTT publisher script
+│   │   ├── subscriber_A.py         # MQTT subscriber for full data
+│   │   ├── subscriber_B.py         # MQTT subscriber for temperature only
+│   │   ├── data_collector.py       # MQTT to InfluxDB data collector
+│   │   ├── setup_grafana.py        # Grafana setup script
+│   │   └── test_influxdb.py        # InfluxDB testing script
+│   └── utils/                      # Utility scripts
 │       └── start_visualization.sh  # Startup script
-├── config/                    # Configuration files
-│   └── env.example           # Environment variables template
-├── docs/                      # Documentation
-│   └── troubleshooting.md    # Troubleshooting guide
-└── mosquitto/                 # Mosquitto broker files
+├── config/                         # Configuration files
+│   └── env.example                 # Environment variables template
+├── docs/                           # Documentation
+│   └── troubleshooting.md          # Troubleshooting guide
+└── mosquitto/                      # Mosquitto broker files
     ├── config/
-    │   └── mosquitto.conf     # Mosquitto broker configuration
-    ├── data/                  # Persistent data storage
-    └── log/                   # Log files
+    │   └── mosquitto.conf          # Mosquitto broker configuration
+    ├── data/                       # Persistent data storage
+    └── log/                        # Log files
 ```
 
 ## Prerequisites
