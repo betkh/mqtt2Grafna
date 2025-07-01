@@ -50,14 +50,10 @@ cd dockerProject
 cp config/env.example .env
 
 # Edit .env file with your credentials (optional - defaults are provided)
-# GRAFANA_USER=admin
-# GRAFANA_PASSWORD=admin
-# INFLUXDB_TOKEN=my-super-secret-auth-token
-# INFLUXDB_ORG=myorg
-# INFLUXDB_BUCKET=weather_data
+
 ```
 
-**Note**: The `.env` file contains sensitive credentials and is automatically ignored by git. Default values are provided, but you can customize them for security.
+**Note**: The `.env` is automatically ignored by git. Default values are provided, customize.
 
 ## Project Organization
 
@@ -66,7 +62,7 @@ The project is organized into logical groups for better maintainability:
 - **`src/scripts/`** - Main application scripts (MQTT publishers, subscribers, data collectors)
 - **`src/utils/`** - Utility scripts and helper tools
 - **`config/`** - Configuration files and templates
-- **`docs/`** - Documentation and troubleshooting guides
+- **`docs/`** - Documentation & troubleshooting guides
 - **`mosquitto/`** - Mosquitto MQTT broker configuration and data
 
 ## Setup Instructions
@@ -114,80 +110,33 @@ This will:
 - Create a temperature monitoring dashboard
 - Handle existing data sources by recreating them
 
-## Usage
-
-### Option 1: Run Publisher and Subscriber A (Full Data)
-
-**Terminal 1 - Start Subscriber A:**
-
-```bash
-pipenv run python src/scripts/subscriber_A.py
-```
-
-**Terminal 2 - Start the Publisher:**
-
-```bash
-pipenv run python src/scripts/publisher.py
-```
-
-### Option 2: Run Publisher and Subscriber B (Temperature Only)
-
-**Terminal 1 - Start Subscriber B:**
-
-```bash
-pipenv run python src/scripts/subscriber_B.py
-```
-
-**Terminal 2 - Start the Publisher:**
-
-```bash
-pipenv run python src/scripts/publisher.py
-```
-
-### Option 3: Real-time Visualization with Grafana
+## How to run :
 
 **Terminal 1 - Start Data Collector:**
 
 ```bash
-pipenv run python src/scripts/data_collector.py
-```
-
-**Terminal 2 - Start the Publisher:**
-
-```bash
-pipenv run python src/scripts/publisher.py
-```
-
-**Browser - View Grafana Dashboard:**
-Open http://localhost:3000 in your browser
-
-- Username: `admin`
-- Password: `admin`
-- Navigate to the "Temperature Monitoring" dashboard
-
-### Option 4: Run All Components
-
-**Terminal 1 - Start Data Collector:**
-
-```bash
+# MQTT -> Influx Data collector
 pipenv run python src/scripts/data_collector.py
 ```
 
 **Terminal 2 - Start Subscriber A:**
 
 ```bash
+# subscriber for full data
 pipenv run python src/scripts/subscriber_A.py
 ```
 
 **Terminal 3 - Start Subscriber B:**
 
 ```bash
+# subscriber for temp
 pipenv run python src/scripts/subscriber_B.py
 ```
 
 **Terminal 4 - Start the Publisher:**
 
 ```bash
+# publisher - randomly generates data and publishes to topic
 pipenv run python src/scripts/publisher.py
 ```
 
