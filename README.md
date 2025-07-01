@@ -291,7 +291,7 @@ from(bucket: "weather_data")
   |> sort(columns: ["_time"])
 ```
 
-**Query average temperature by location**:
+<!-- **Query average temperature by location**:
 
 ```flux
 from(bucket: "weather_data")
@@ -311,7 +311,7 @@ from(bucket: "weather_data")
   |> filter(fn: (r) => r["_field"] == "value")
   |> group()
   |> aggregateWindow(every: 5m, fn: mean, createEmpty: false)
-```
+``` -->
 
 ## Configuration
 
