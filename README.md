@@ -69,13 +69,17 @@ The project is organized into logical groups for better maintainability:
 
 ### 2. Install Python Dependencies
 
-```bash
-# Install pipenv if you don't have it
-pip install pipenv
+- Install pipenv if you don't have it
 
-# Install dependencies in virtual environment
-pipenv install
-```
+  ```bash
+  pip install pipenv
+  ```
+
+- Install dependencies in virtual environment
+
+  ```bash
+  pipenv install
+  ```
 
 ### 3. Start All Services
 
@@ -114,31 +118,35 @@ This will:
 
 **Terminal 1 - Start Data Collector:**
 
-```bash
-# MQTT -> Influx Data collector
-pipenv run python src/scripts/data_collector.py
-```
+- MQTT -> Influx Data collector
+
+  ```bash
+  pipenv run python src/scripts/data_collector.py
+  ```
 
 **Terminal 2 - Start Subscriber A:**
 
-```bash
-# subscriber for full data
-pipenv run python src/scripts/subscriber_A.py
-```
+- subscriber for full data
+
+  ```bash
+  pipenv run python src/scripts/subscriber_A.py
+  ```
 
 **Terminal 3 - Start Subscriber B:**
 
-```bash
-# subscriber for temp
-pipenv run python src/scripts/subscriber_B.py
-```
+- subscriber for temp
+
+  ```bash
+  pipenv run python src/scripts/subscriber_B.py
+  ```
 
 **Terminal 4 - Start the Publisher:**
 
-```bash
-# publisher - randomly generates data and publishes to topic
-pipenv run python src/scripts/publisher.py
-```
+- publisher - randomly generates data and publishes to topic
+
+  ```bash
+  pipenv run python src/scripts/publisher.py
+  ```
 
 **Browser - View Grafana Dashboard:**
 Open http://localhost:3000
