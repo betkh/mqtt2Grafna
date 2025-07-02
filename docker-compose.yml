@@ -3,7 +3,7 @@ version: '3.8'
 services:
   mosquitto:
     image: eclipse-mosquitto:latest
-    container_name: mqtt_broker
+    container_name: mqtt2grafna_mosquitto
     ports:
       - "1883:1883"  # MQTT default port
       - "9001:9001"  # WebSocket port
@@ -17,7 +17,7 @@ services:
 
   influxdb:
     image: influxdb:2.7
-    container_name: influxdb
+    container_name: mqtt2grafna_influxdb
     ports:
       - "8086:8086"  # InfluxDB HTTP API
     environment:
@@ -35,7 +35,7 @@ services:
 
   grafana:
     image: grafana/grafana:latest
-    container_name: grafana
+    container_name: mqtt2grafna_grafana
     ports:
       - "3000:3000"  # Grafana web interface
     environment:
@@ -51,8 +51,11 @@ services:
 
 volumes:
   influxdb_data:
+    name: mqtt2grafna_influxdb_data
   grafana_data:
+    name: mqtt2grafna_grafana_data
 
 networks:
   mqtt_network:
+    name: mqtt2grafna_network
     driver: bridge 
