@@ -46,7 +46,7 @@ mqtt2Grafana/
 ```bash
 # Clone the repository
 git clone <repository-url>
-cd dockerProject
+cd mqtt2Grafana
 
 # Create environment file
 cp config/env.example .env
