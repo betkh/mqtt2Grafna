@@ -271,9 +271,13 @@ This script will:
 
 ### Accessing Grafana
 
-- **URL**: http://localhost:3000
+#### Local Access
+
+- **URL**: http://localhost:3000 or `http://YOUR_HOST_IP:3000`
 - **Username**: `admin`
 - **Password**: `admin`
+
+> **🌐 Remote Access**: To access Grafana and other services from other devices on your network (phones, tablets, other computers), see our comprehensive [Remote Access Guide](docs/remoteaccess.md) for detailed instructions on IP configuration, firewall setup, and troubleshooting.
 
 ### Dashboard Features
 
@@ -344,33 +348,33 @@ You can modify the following variables in all Python scripts:
 
 ## Troubleshooting
 
-### Common Issues
+> **🔧 Need Help?**: For comprehensive troubleshooting, including Docker issues, network problems, and data recovery, see our detailed [Troubleshooting Guide](docs/troubleshooting.md).
 
-1. **Connection Refused**: Make sure the Docker container is running
+### Quick Fixes
 
-   ```bash
-   docker-compose ps
-   ```
-
-2. **Import Error**: Install the required Python package
-
-   ```bash
-   pipenv install paho-mqtt
-   ```
-
-3. **Port Already in Use**: Check if port 1883 is available
-   ```bash
-   lsof -i :1883
-   ```
-
-### Viewing Logs
+**Services not starting?**
 
 ```bash
-# View Mosquitto broker logs
-docker-compose logs mosquitto
+docker-compose ps
+docker-compose logs
+```
 
-# Follow logs in real-time
-docker-compose logs -f mosquitto
+**Can't connect to MQTT?**
+
+```bash
+docker-compose restart mosquitto
+```
+
+**Grafana not showing data?**
+
+```bash
+pipenv run python src/scripts/data_collector.py
+```
+
+**Python import errors?**
+
+```bash
+pipenv install
 ```
 
 ## Stopping the Application
