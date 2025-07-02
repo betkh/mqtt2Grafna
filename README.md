@@ -85,9 +85,19 @@ The project is organized into logical groups for better maintainability:
 
 ### 3. Start All Services
 
+**macOS/Windows:**
+
 ```bash
 docker-compose -p mqtt2grafna up -d
 ```
+
+**Linux:**
+
+```bash
+docker compose -p mqtt2grafna up -d
+```
+
+> **Note**: On Linux, use `docker compose` (without hyphen). On macOS/Windows, use `docker-compose` (with hyphen).
 
 This will start:
 
@@ -97,8 +107,16 @@ This will start:
 
 ### 4. Verify Services are Running
 
+**macOS/Windows:**
+
 ```bash
 docker-compose ps
+```
+
+**Linux:**
+
+```bash
+docker compose ps
 ```
 
 You should see the `mqtt_broker`, `influxdb`, and `grafana` containers running.
@@ -354,15 +372,32 @@ You can modify the following variables in all Python scripts:
 
 **Services not starting?**
 
+**macOS/Windows:**
+
 ```bash
 docker-compose ps
 docker-compose logs
 ```
 
+**Linux:**
+
+```bash
+docker compose ps
+docker compose logs
+```
+
 **Can't connect to MQTT?**
+
+**macOS/Windows:**
 
 ```bash
 docker-compose restart mosquitto
+```
+
+**Linux:**
+
+```bash
+docker compose restart mosquitto
 ```
 
 **Grafana not showing data?**
@@ -381,13 +416,24 @@ pipenv install
 
 1. **Stop Python scripts**: Press `Ctrl+C` in the terminal running the scripts
 2. **Stop MQTT broker**:
+
+   **macOS/Windows:**
+
    ```bash
    docker-compose down
+   ```
+
+   **Linux:**
+
+   ```bash
+   docker compose down
    ```
 
 ## Clean Up
 
 To completely remove the application and data:
+
+**macOS/Windows:**
 
 ```bash
 # Stop and remove containers
@@ -395,12 +441,26 @@ docker-compose down
 
 # Remove volumes (this will delete all data)
 docker-compose down -v
+```
+
+**Linux:**
+
+```bash
+# Stop and remove containers
+docker compose down
+
+# Remove volumes (this will delete all data)
+docker compose down -v
+```
 
 # Remove virtual environment
+
 pipenv --rm
 
 # Remove the project directory
+
 rm -rf /path/to/dockerProject
+
 ```
 
 ## Next Steps
@@ -412,3 +472,4 @@ rm -rf /path/to/dockerProject
 
 - Scale to multiple publishers/subscribers
 - Add message filtering and routing
+```
