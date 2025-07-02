@@ -5,7 +5,7 @@ This project demonstrates how to use a containerized Mosquitto MQTT broker with 
 ## Project Structure
 
 ```
-dockerProject/
+mqtt2Grafana/
 ├── docker-compose.yml              # Docker Compose configuration
 ├── Pipfile                         # Python dependencies (pipenv)
 ├── .gitignore                      # Git ignore rules
@@ -36,6 +36,8 @@ dockerProject/
 - Docker and Docker Compose installed
 - Python 3.7+ installed
 - pipenv (Python virtual environment manager)
+
+> **📋 Environment Setup**: If you're setting up this project on Linux/Ubuntu, check out our detailed [Environment Setup Guide](docs/Environment-setup-Linux.md) for step-by-step installation instructions for Docker, Python, and pipenv.
 
 ## Initial Setup
 
