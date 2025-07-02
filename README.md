@@ -436,30 +436,49 @@ To completely remove the application and data:
 **macOS/Windows:**
 
 ```bash
-# Stop and remove containers
-docker-compose down
-
-# Remove volumes (this will delete all data)
+# Method 1: Stop all containers first
+docker stop $(docker ps -aq)
 docker-compose down -v
+
+# Method 2: Use --remove-orphans flag
+docker-compose down -v --remove-orphans
+
+# Method 3: Force remove (if above methods fail)
+docker-compose down -v --force
 ```
 
 **Linux:**
 
 ```bash
-# Stop and remove containers
-docker compose down
-
-# Remove volumes (this will delete all data)
+# Method 1: Stop all containers first
+sudo docker stop $(sudo docker ps -aq)
 docker compose down -v
+
+# Method 2: Use --remove-orphans flag
+docker compose down -v --remove-orphans
+
+# Method 3: Force remove (if above methods fail)
+docker compose down -v --force
 ```
 
-# Remove virtual environment
+> **💡 Tip**: If you still get "volume in use" errors, use the complete cleanup sequence:
+>
+> ```bash
+> # Complete cleanup (WARNING: This removes ALL Docker data)
+> docker stop $(docker ps -aq) && docker rm $(docker ps -aq) && docker volume prune -f
+> ```
 
+**Remove virtual environment:**
+
+```bash
 pipenv --rm
+```
 
-# Remove the project directory
+**Remove the project directory:**
 
-rm -rf /path/to/dockerProject
+```bash
+rm -rf /path/to/mqtt2Grafana
+```
 
 ```
 
