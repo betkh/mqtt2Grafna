@@ -84,7 +84,7 @@ The project is organized into logical groups for better maintainability:
 ### 3. Start All Services
 
 ```bash
-docker-compose up -d
+docker-compose -p mqtt2grafna up -d
 ```
 
 This will start:
