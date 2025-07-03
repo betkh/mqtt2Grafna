@@ -129,7 +129,7 @@ If automatic setup fails, manually configure Grafana:
    - Version: Flux
    - Organization: myorg
    - Default Bucket: weather_data
-   - Token: my-super-secret-auth-token
+   - Token: $INFLUXDB_TOKEN
 
 5. Create dashboard:
    - Add new panel
@@ -250,7 +250,7 @@ curl -I http://localhost:8086/health
 docker-compose logs influxdb
 
 # Test InfluxDB API
-curl -H "Authorization: Token my-super-secret-auth-token" \
+curl -H "Authorization: Token $INFLUXDB_TOKEN" \
   "http://localhost:8086/api/v2/buckets?org=myorg"
 ```
 
