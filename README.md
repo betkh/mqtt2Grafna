@@ -13,9 +13,10 @@ mqtt2Grafana/
 ├── src/                            # Source code
 │   ├── scripts/                    # Main application scripts
 │   │   ├── publisher.py            # MQTT publisher script
-│   │   ├── subscriber_A.py         # MQTT subscriber for full data
-│   │   ├── subscriber_B.py         # MQTT subscriber for temperature only
+│   │   ├── subscriber_A.py         # MQTT subscriber for temperature data
+│   │   ├── subscriber_B.py         # MQTT subscriber for humidity data
 │   │   ├── setup_grafana.py        # Grafana setup script
+│   │   ├── setup_influxdb_token.py # InfluxDB token setup script
 │   │   └── test_influxdb.py        # InfluxDB testing script
 │   └── utils/                      # Utility scripts
 │       └── start_visualization.sh  # Startup script
@@ -24,7 +25,10 @@ mqtt2Grafana/
 ├── config/                         # Configuration files
 │   └── env.example                 # Environment variables template
 ├── docs/                           # Documentation
-│   └── troubleshooting.md          # Troubleshooting guide
+│   ├── troubleshooting.md          # Troubleshooting guide
+│   ├── influx-token-management.md  # InfluxDB token management guide
+│   ├── influxdb-querying.md        # InfluxDB querying guide
+│   └── grafana-influxdb-setup.md   # Grafana InfluxDB setup guide
 └── mosquitto/                      # Mosquitto broker files
     ├── config/
     │   └── mosquitto.conf          # Mosquitto broker configuration
@@ -49,14 +53,18 @@ mqtt2Grafana/
 git clone <repository-url>
 cd mqtt2Grafana
 
-# Create environment file
-cp config/env.example .env
+# Setup environment variables (includes your InfluxDB token)
+./setup_env.sh
 
-# Edit .env file with your credentials (optional - defaults are provided)
+# Or manually create .env file
+cp config/env.example .env
+# Edit .env file with your credentials
 
 ```
 
-**Note**: The `.env` is automatically ignored by git. Default values are provided, customize.
+**Note**: The `.env` file is automatically ignored by git. The `setup_env.sh` script will create it with your InfluxDB token.
+
+> **🔐 Security Note**: For production use, consider creating a custom InfluxDB token instead of using the default one. See the [InfluxDB Token Management](#influxdb-token-management) section for detailed instructions.
 
 ## Project Organization
 
@@ -154,17 +162,17 @@ docker compose -p mqtt2grafna up -d
 
 > **📊 Data Collection**: Telegraf automatically collects MQTT data and writes to InfluxDB. No need to run the Python data collector script.
 
-**Terminal 2 - Start Subscriber A:**
+**Terminal 2 - Start Subscriber A (Temperature):**
 
-- subscriber for full data
+- Subscribes to "data/temperature" topic
 
   ```bash
   pipenv run python src/scripts/subscriber_A.py
   ```
 
-**Terminal 3 - Start Subscriber B:**
+**Terminal 3 - Start Subscriber B (Humidity):**
 
-- subscriber for temp
+- Subscribes to "data/humidity" topic
 
   ```bash
   pipenv run python src/scripts/subscriber_B.py
@@ -172,7 +180,7 @@ docker compose -p mqtt2grafna up -d
 
 **Terminal 4 - Start the Publisher:**
 
-- publisher - randomly generates data and publishes to topic
+- publisher - randomly generates data and publishes to separate topics
 
   ```bash
   pipenv run python src/scripts/publisher.py
@@ -200,21 +208,34 @@ Open http://localhost:3000
 
 > **💡 Tip**: Both services are accessible via web browser. Grafana is for visualization, while InfluxDB provides data storage and query capabilities.
 
+## Documentation
+
+- [Environment Setup (Linux)](docs/Environment-setup-Linux.md)
+- [InfluxDB Token Management](docs/influx-token-management.md)
+- [InfluxDB Querying Guide](docs/influxdb-querying.md)
+- [Grafana InfluxDB Setup](docs/grafana-influxdb-setup.md)
+- [SQL Setup Guide (InfluxDB v3)](docs/sql-setup-guide.md)
+- [Temperature CSV Guide](docs/temperature-csv-guide.md)
+- [Best Practices](docs/bestpractices.md)
+- [Troubleshooting](docs/troubleshooting.md)
+- [Remote Access](docs/remoteaccess.md)
+
 ## What the Application Does
 
 ### Publisher (`src/scripts/publisher.py`)
 
 - Connects to the MQTT broker
-- Publishes weather data to the "data/temperature" topic every second
-- Data includes: temperature, humidity, pressure, wind speed, location, and timestamp
+- Publishes temperature data to "data/temperature" topic every second
+- Publishes humidity data to "data/humidity" topic every second
+- Each topic contains its specific data type with timestamp
 - Uses QoS level 1 for reliable message delivery
 
 ### Telegraf Data Collector
 
 - **Automatically runs** as part of the Docker Compose stack
-- **Subscribes to MQTT** messages from the "data/temperature" topic
-- **Parses JSON data** and extracts temperature values
-- **Writes to InfluxDB** with proper timestamps and tags
+- **Subscribes to MQTT** messages from both "data/temperature" and "data/humidity" topics
+- **Parses JSON data** and extracts temperature and humidity values separately
+- **Writes to InfluxDB** with proper timestamps and tags for each measurement type
 - **Reliable and efficient** data collection with built-in error handling
 - **No manual intervention** required - starts automatically with services
 
@@ -222,15 +243,15 @@ Open http://localhost:3000
 
 - Connects to the MQTT broker
 - Subscribes to the "data/temperature" topic
-- Receives and displays all published data (full weather information)
-- Shows temperature, humidity, pressure, wind speed, location, and timestamp
+- Receives and displays temperature data only
+- Shows temperature value and timestamp
 
 ### Subscriber B (`src/scripts/subscriber_B.py`)
 
 - Connects to the MQTT broker
-- Subscribes to the "data/temperature" topic
-- Receives the same messages but only displays temperature-related information
-- Shows only temperature, timestamp, and location
+- Subscribes to the "data/humidity" topic
+- Receives and displays humidity data only
+- Shows humidity value and timestamp
 
 ## Sample Output
 
@@ -239,36 +260,21 @@ Open http://localhost:3000
 ```
 Connecting to MQTT broker at localhost:1883...
 Connected to MQTT broker at localhost:1883
-Publishing messages to topic: data/temperature
+Publishing messages to topics:
+   Temperature: data/temperature
+   Humidity: data/humidity
 Press Ctrl+C to stop...
 
 Message #1 published:
-   Topic: data/temperature
-   Temperature: 23.45°C
+   Temperature Topic: data/temperature
+     Temperature: 23.45°C
+     Timestamp: 2024-01-15T10:30:45.123456
+   Humidity Topic: data/humidity
+     Humidity: 65.32%
+     Timestamp: 2024-01-15T10:30:45.123456
 ```
 
-### Subscriber A Output (Full Data):
-
-```
-Connecting to MQTT broker at localhost:1883...
-Connected to MQTT broker at localhost:1883
-Subscribed to topic: data/temperature
-Starting message loop...
-Press Ctrl+C to stop...
-
-Message received from topic: data/temperature
-   QoS: 1
-   Timestamp: 2024-01-15 10:30:45
-   Full Data:
-     timestamp: 2024-01-15T10:30:45.123456
-     temperature: 23.45
-     humidity: 65.32
-     pressure: 1013.25
-     wind_speed: 8.7
-     location: Weather Station 1
-```
-
-### Subscriber B Output (Temperature Only):
+### Subscriber A Output (Temperature Data):
 
 ```
 Connecting to MQTT broker at localhost:1883...
@@ -280,7 +286,20 @@ Press Ctrl+C to stop...
 Temperature data received:
    Temperature: 23.45°C
    Timestamp: 2024-01-15T10:30:45.123456
-   Location: Weather Station 1
+```
+
+### Subscriber B Output (Humidity Data):
+
+```
+Connecting to MQTT broker at localhost:1883...
+Connected to MQTT broker at localhost:1883
+Subscribed to topic: data/humidity
+Starting message loop...
+Press Ctrl+C to stop...
+
+Humidity data received:
+   Humidity: 65.32%
+   Timestamp: 2024-01-15T10:30:45.123456
 ```
 
 ## Data Model and Storage
@@ -338,19 +357,29 @@ This script will:
 
 ### Data Flow
 
-1. **Publisher** → MQTT topic `data/temperature`
-2. **Data Collector** → InfluxDB time-series database
+1. **Publisher** → MQTT topics `data/temperature` and `data/humidity`
+2. **Data Collector** → InfluxDB time-series database (separate measurements)
 3. **Grafana** → Visualizes data from InfluxDB
 
 ### Example InfluxDB Queries
 
-**Query recent temperature data (last hour)**:
+For comprehensive query examples and advanced InfluxDB usage, see our [InfluxDB Querying Guide](docs/influxdb-querying.md).
+
+**Basic query examples:**
 
 ```flux
+# Query recent temperature data (last hour)
 from(bucket: "weather_data")
   |> range(start: -1h)
   |> filter(fn: (r) => r["_measurement"] == "temperature")
-  |> filter(fn: (r) => r["_field"] == "value")
+  |> filter(fn: (r) => r["_field"] == "temperature")
+  |> sort(columns: ["_time"])
+
+# Query recent humidity data (last hour)
+from(bucket: "weather_data")
+  |> range(start: -1h)
+  |> filter(fn: (r) => r["_measurement"] == "humidity")
+  |> filter(fn: (r) => r["_field"] == "humidity")
   |> sort(columns: ["_time"])
 ```
 
@@ -376,6 +405,24 @@ from(bucket: "weather_data")
   |> aggregateWindow(every: 5m, fn: mean, createEmpty: false)
 ``` -->
 
+## InfluxDB Token Management
+
+For security in production environments, you should create a custom InfluxDB token instead of using the default one.
+
+> **🔐 Quick Setup**: Choose your preferred method:
+>
+> - **CLI**: `docker exec -it mqtt2grafna_influxdb influx` then `influx auth create --org myorg --bucket weather_data --write-bucket weather_data`
+> - **Web Interface**: http://localhost:8086 → Data → API Tokens
+> - **Automated Script**: `pipenv run python src/scripts/setup_influxdb_token.py`
+
+For detailed instructions on token creation, management, and security best practices, see our comprehensive [InfluxDB Token Management Guide](docs/influx-token-management.md).
+
+### Default Token (Development Only)
+
+The current setup uses a default token: `my-super-secret-auth-token`
+
+⚠️ **Warning**: This token is for development only. Always use a custom token for production environments.
+
 ## Configuration
 
 The Mosquitto broker is configured in `mosquitto/config/mosquitto.conf`:
@@ -392,7 +439,8 @@ You can modify the following variables in all Python scripts:
 
 - `MQTT_BROKER`: Broker hostname (default: "localhost")
 - `MQTT_PORT`: Broker port (default: 1883)
-- `MQTT_TOPIC`: Topic name (default: "data/temperature")
+- `MQTT_TOPIC_TEMPERATURE`: Temperature topic name (default: "data/temperature")
+- `MQTT_TOPIC_HUMIDITY`: Humidity topic name (default: "data/humidity")
 - `MQTT_CLIENT_ID`: Client identifier
 
 ## Troubleshooting
@@ -436,6 +484,12 @@ docker compose restart mosquitto
 ```bash
 pipenv run python src/scripts/data_collector.py
 ```
+
+**InfluxDB authentication issues?**
+
+- Check if the token in `telegraf/telegraf.conf` matches your InfluxDB token
+- Verify token permissions in InfluxDB web interface (http://localhost:8086)
+- See [InfluxDB Token Management Guide](docs/influx-token-management.md) for token creation instructions
 
 **Python import errors?**
 
@@ -511,8 +565,6 @@ pipenv --rm
 rm -rf /path/to/mqtt2Grafana
 ```
 
-```
-
 ## Next Steps
 
 <!-- - Add authentication to the MQTT broker
@@ -522,4 +574,34 @@ rm -rf /path/to/mqtt2Grafana
 
 - Scale to multiple publishers/subscribers
 - Add message filtering and routing
+
+```
+docker restart mqtt2grafna_telegraf
+
+docker exec mqtt2grafna_mosquitto mosquitto_sub -t "data/temperature" -C 3
+
+docker logs mqtt2grafna_telegraf --since 10m | grep -E "(Connected|Received|Error|Warning)"
+
+# see if we can write directly to InfluxDB:
+pipenv run python src/scripts/test_write_influxdb.py
+
+# check if Telegraf is receiving MQTT messages:
+docker logs mqtt2grafna_telegraf --tail 10
+
+# check if the publisher is still running and if Telegraf is receiving data:
+ps aux | grep publisher
+
+# check if there are any recent errors and also verify that the publisher is still running:
+docker logs mqtt2grafna_telegraf --since 5m 2>&1 | grep -i error
+
+#wait a bit longer and test again, as it might take a moment for data to start flowing:
+sleep 15 && pipenv run python src/scripts/test_influxdb_data.py
+
+
+#check if there are any errors in the Telegraf logs
+docker logs mqtt2grafna_telegraf 2>&1 | grep -i error
+
+#querying via terminal
+docker exec -it mqtt2grafna_influxdb influx query 'show measurements' --org myorg --token $INFLUXDB_TOKEN
+
 ```
