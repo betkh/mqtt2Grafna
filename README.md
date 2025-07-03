@@ -171,6 +171,25 @@ This will:
 **Browser - View Grafana Dashboard:**
 Open http://localhost:3000
 
+## Accessing Services via Localhost
+
+### Grafana Dashboard
+
+- **URL**: http://localhost:3000
+- **Username**: `admin`
+- **Password**: `admin`
+- **Features**: Real-time temperature monitoring, customizable dashboards
+
+### InfluxDB Web Interface
+
+- **URL**: http://localhost:8086
+- **Username**: `admin`
+- **Password**: `adminpassword`
+- **Organization**: `myorg`
+- **Features**: Data exploration, query editor, bucket management
+
+> **💡 Tip**: Both services are accessible via web browser. Grafana is for visualization, while InfluxDB provides data storage and query capabilities.
+
 ## What the Application Does
 
 ### Publisher (`src/scripts/publisher.py`)
