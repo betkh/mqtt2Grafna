@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 MQTT Subscriber B Script
-Subscribes to the "data/temperature" topic for temperature data only
+Subscribes to the "data/humidity" topic for humidity data
 """
 
 import paho.mqtt.client as mqtt
@@ -11,7 +11,7 @@ from datetime import datetime
 # MQTT Configuration
 MQTT_BROKER = "localhost"
 MQTT_PORT = 1883
-MQTT_TOPIC = "data/temperature"
+MQTT_TOPIC = "data/humidity"
 MQTT_CLIENT_ID = "python_subscriber_B"
 
 
@@ -32,10 +32,9 @@ def on_message(client, userdata, msg):
         # Parse JSON message
         data = json.loads(msg.payload.decode())
 
-        print(f"\nTemperature data received:")
-        print(f"   Temperature: {data.get('temperature', 'N/A')}°C")
+        print(f"\nHumidity data received:")
+        print(f"   Humidity: {data.get('humidity', 'N/A')}%")
         print(f"   Timestamp: {data.get('timestamp', 'N/A')}")
-        print(f"   Location: {data.get('location', 'N/A')}")
 
     except json.JSONDecodeError:
         print(f"\nRaw message received: {msg.payload.decode()}")

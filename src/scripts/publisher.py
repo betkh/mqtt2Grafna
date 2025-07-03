@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 MQTT Publisher Script
-Publishes messages to the "data/temperature" topic
+Publishes temperature data to "data/temperature" topic and humidity data to "data/humidity" topic
 """
 
 import paho.mqtt.client as mqtt
@@ -13,7 +13,8 @@ from datetime import datetime
 # MQTT Configuration
 MQTT_BROKER = "localhost"
 MQTT_PORT = 1883
-MQTT_TOPIC = "data/temperature"
+MQTT_TOPIC_TEMPERATURE = "data/temperature"
+MQTT_TOPIC_HUMIDITY = "data/humidity"
 MQTT_CLIENT_ID = "python_publisher"
 
 
@@ -30,15 +31,19 @@ def on_publish(client, userdata, mid):
     print(f"Message published with ID: {mid}")
 
 
-def create_sample_data():
+def create_temperature_data():
     """Create sample temperature data"""
     return {
         "timestamp": datetime.now().isoformat(),
-        "temperature": round(random.uniform(15.0, 30.0), 2),
-        "humidity": round(random.uniform(40.0, 80.0), 2),
-        "pressure": round(random.uniform(1000.0, 1020.0), 2),
-        "wind_speed": round(random.uniform(0.0, 15.0), 2),
-        "location": "Weather Station 1"
+        "temperature": round(random.uniform(15.0, 30.0), 2)
+    }
+
+
+def create_humidity_data():
+    """Create sample humidity data"""
+    return {
+        "timestamp": datetime.now().isoformat(),
+        "humidity": round(random.uniform(40.0, 80.0), 2)
     }
 
 
@@ -62,25 +67,38 @@ def main():
         # Wait a moment for connection
         time.sleep(2)
 
-        print(f"Publishing messages to topic: {MQTT_TOPIC}")
+        print(f"Publishing messages to topics:")
+        print(f"   Temperature: {MQTT_TOPIC_TEMPERATURE}")
+        print(f"   Humidity: {MQTT_TOPIC_HUMIDITY}")
         print("Press Ctrl+C to stop...")
 
         # Publish messages every second for real-time visualization
         message_count = 0
         while True:
             # Create sample data
-            data = create_sample_data()
+            temp_data = create_temperature_data()
+            humidity_data = create_humidity_data()
             message_count += 1
 
             # Convert to JSON
-            payload = json.dumps(data, indent=2)
+            temp_payload = json.dumps(temp_data, indent=2)
+            humidity_payload = json.dumps(humidity_data, indent=2)
 
-            # Publish message
-            result = client.publish(MQTT_TOPIC, payload, qos=1)
+            # Publish temperature message
+            temp_result = client.publish(
+                MQTT_TOPIC_TEMPERATURE, temp_payload, qos=1)
+
+            # Publish humidity message
+            humidity_result = client.publish(
+                MQTT_TOPIC_HUMIDITY, humidity_payload, qos=1)
 
             print(f"\nMessage #{message_count} published:")
-            print(f"   Topic: {MQTT_TOPIC}")
-            print(f"   Temperature: {data['temperature']}°C")
+            print(f"   Temperature Topic: {MQTT_TOPIC_TEMPERATURE}")
+            print(f"     Temperature: {temp_data['temperature']}°C")
+            print(f"     Timestamp: {temp_data['timestamp']}")
+            print(f"   Humidity Topic: {MQTT_TOPIC_HUMIDITY}")
+            print(f"     Humidity: {humidity_data['humidity']}%")
+            print(f"     Timestamp: {humidity_data['timestamp']}")
 
             # Wait 1 second before next message
             time.sleep(1)
