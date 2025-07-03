@@ -15,11 +15,12 @@ mqtt2Grafana/
 │   │   ├── publisher.py            # MQTT publisher script
 │   │   ├── subscriber_A.py         # MQTT subscriber for full data
 │   │   ├── subscriber_B.py         # MQTT subscriber for temperature only
-│   │   ├── data_collector.py       # MQTT to InfluxDB data collector
 │   │   ├── setup_grafana.py        # Grafana setup script
 │   │   └── test_influxdb.py        # InfluxDB testing script
 │   └── utils/                      # Utility scripts
 │       └── start_visualization.sh  # Startup script
+├── telegraf/                       # Telegraf configuration
+│   └── telegraf.conf               # MQTT to InfluxDB data collection
 ├── config/                         # Configuration files
 │   └── env.example                 # Environment variables template
 ├── docs/                           # Documentation
@@ -104,6 +105,7 @@ This will start:
 - **Mosquitto MQTT broker** on port 1883 (MQTT) and 9001 (WebSocket)
 - **InfluxDB** on port 8086 (time-series database)
 - **Grafana** on port 3000 (web interface)
+- **Telegraf** (data collector) - automatically collects MQTT data and writes to InfluxDB
 
 ### 4. Verify Services are Running
 
@@ -119,7 +121,7 @@ docker-compose ps
 docker compose ps
 ```
 
-You should see the `mqtt_broker`, `influxdb`, and `grafana` containers running.
+You should see the `mqtt2grafna_mosquitto`, `mqtt2grafna_influxdb`, `mqtt2grafna_grafana`, and `mqtt2grafna_telegraf` containers running.
 
 ### 5. Setup Grafana (One-time setup)
 
@@ -136,13 +138,21 @@ This will:
 
 ## How to run :
 
-**Terminal 1 - Start Data Collector:**
+**Start Services (includes Telegraf for data collection):**
 
-- MQTT -> Influx Data collector
+**macOS/Windows:**
 
-  ```bash
-  pipenv run python src/scripts/data_collector.py
-  ```
+```bash
+docker-compose -p mqtt2grafna up -d
+```
+
+**Linux:**
+
+```bash
+docker compose -p mqtt2grafna up -d
+```
+
+> **📊 Data Collection**: Telegraf automatically collects MQTT data and writes to InfluxDB. No need to run the Python data collector script.
 
 **Terminal 2 - Start Subscriber A:**
 
@@ -175,14 +185,14 @@ Open http://localhost:3000
 
 ### Grafana Dashboard
 
-- **URL**: http://localhost:3000
+- **URL**: `http://localhost:3000` or `http://HOST_IP:3000`
 - **Username**: `admin`
 - **Password**: `admin`
 - **Features**: Real-time temperature monitoring, customizable dashboards
 
 ### InfluxDB Web Interface
 
-- **URL**: http://localhost:8086
+- **URL**: `http://localhost:8086` or `http://HOST_IP:8086`
 - **Username**: `admin`
 - **Password**: `adminpassword`
 - **Organization**: `myorg`
@@ -199,12 +209,14 @@ Open http://localhost:3000
 - Data includes: temperature, humidity, pressure, wind speed, location, and timestamp
 - Uses QoS level 1 for reliable message delivery
 
-### Data Collector (`src/scripts/data_collector.py`)
+### Telegraf Data Collector
 
-- Subscribes to MQTT messages from the "data/temperature" topic
-- Extracts temperature data and stores it in InfluxDB
-- Enables real-time visualization in Grafana
-- Runs continuously to collect time-series data
+- **Automatically runs** as part of the Docker Compose stack
+- **Subscribes to MQTT** messages from the "data/temperature" topic
+- **Parses JSON data** and extracts temperature values
+- **Writes to InfluxDB** with proper timestamps and tags
+- **Reliable and efficient** data collection with built-in error handling
+- **No manual intervention** required - starts automatically with services
 
 ### Subscriber A (`src/scripts/subscriber_A.py`)
 

@@ -49,6 +49,18 @@ services:
     depends_on:
       - influxdb
 
+  telegraf:
+    image: telegraf:latest
+    container_name: mqtt2grafna_telegraf
+    volumes:
+      - ./telegraf/telegraf.conf:/etc/telegraf/telegraf.conf:ro
+    restart: unless-stopped
+    networks:
+      - mqtt_network
+    depends_on:
+      - mosquitto
+      - influxdb
+
 volumes:
   influxdb_data:
     name: mqtt2grafna_influxdb_data
