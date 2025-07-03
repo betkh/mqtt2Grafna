@@ -112,13 +112,13 @@ This will start:
 **macOS/Windows:**
 
 ```bash
-docker-compose ps
+docker ps
 ```
 
 **Linux:**
 
 ```bash
-docker compose ps
+docker ps
 ```
 
 You should see the `mqtt2grafna_mosquitto`, `mqtt2grafna_influxdb`, `mqtt2grafna_grafana`, and `mqtt2grafna_telegraf` containers running.
